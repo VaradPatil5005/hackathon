@@ -41,7 +41,7 @@ The three experts' probabilities are fused with weights tuned on validation data
 | Path | Purpose |
 |---|---|
 | `server.py` | FastAPI backend and the web app |
-| `static/` | Web app in the Ghumzy (Yatra Kahani) design system: tokens, Plus Jakarta Sans and Mukta fonts, components |
+| `static/` | design system: tokens, Plus Jakarta Sans and Mukta fonts, components |
 | `hybrid.py` · `waste_vocab.py` | The hybrid recogniser and its open vocabulary |
 | `waste_core.py` | Categories, instructions, ConvNeXt, image perturbations |
 | `train.py` · `evaluate.py` | 70/15/15 split, ConvNeXt training and test-set evaluation |
