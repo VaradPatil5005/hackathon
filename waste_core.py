@@ -5,10 +5,11 @@ disposal instructions, image perturbations, model loading and the
 MSP + normalized-entropy uncertainty gate. Used by app.py, train.py and
 evaluate.py so that the demo and the reported numbers use identical code.
 """
+import json
 import math
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parent
 
@@ -26,55 +27,56 @@ from torchvision import models, transforms  # noqa: E402
 
 ARTIFACTS = ROOT / "artifacts"
 MODEL_PATH = ARTIFACTS / "model.pt"
+POLICY_PATH = ROOT / "policy.json"
 
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
 # ---------------------------------------------------------------------------
-# 5 cafeteria disposal categories
+# Policy Loading (Editable without retraining)
 # ---------------------------------------------------------------------------
-CATEGORIES: Dict[str, Dict[str, str]] = {
+DEFAULT_CATEGORIES: Dict[str, Dict[str, Any]] = {
     "Paper & Cardboard": {
         "bin": "Blue Bin - Dry Paper Recyclables",
         "color": "#2f7f9e",
         "icon": "📄",
+        "description": "Clean, dry paper and cardboard free of heavy grease or food residue.",
     },
     "Plastic": {
         "bin": "Yellow Bin - Recyclable Plastics",
         "color": "#d99a06",
         "icon": "🧴",
+        "description": "Clean, rigid recyclable plastic containers (primarily PET #1 and HDPE #2).",
     },
     "Metal": {
         "bin": "Grey Bin - Metals & Cans",
         "color": "#6e6e66",
         "icon": "🥫",
+        "description": "Beverage cans, clean tins, and metal lids. Emptied and rinsed.",
     },
     "Food Scraps / Organic": {
         "bin": "Green Bin - Wet / Compostable Food Waste",
         "color": "#4e7a1a",
         "icon": "🍎",
+        "description": "Post-consumer food scraps and compostable solids. Strictly no non-biodegradable items.",
     },
     "Non-Recyclable / Special Waste": {
         "bin": "Red/Black Bin or Special-Handling Point",
         "color": "#b4472b",
         "icon": "🗑️",
+        "description": "Composite category combining general residual waste (Red/Black bin) with special-handling points (batteries, glass crates, donations). This is NOT a single physical bin.",
     },
 }
-CATEGORY_NAMES: List[str] = list(CATEGORIES.keys())
 
-# ---------------------------------------------------------------------------
-# 12 fine-grained dataset classes -> 5 cafeteria categories + instructions
-# (keys are the dataset folder names, lower-case)
-# ---------------------------------------------------------------------------
-CLASS_INFO: Dict[str, Dict[str, str]] = {
+DEFAULT_CLASS_INFO: Dict[str, Dict[str, str]] = {
     "paper": {
         "display": "Paper",
         "category": "Paper & Cardboard",
         "target": "Blue Bin",
         "instruction": (
-            "1. Make sure the paper (cups, sleeves, sheets, bags) is dry and free of heavy food residue.\n"
-            "2. Flatten it and drop it into the BLUE BIN.\n"
-            "3. If it is soaked in oil or curry, it is no longer recyclable - put it in the GREEN (food) bin."
+            "1. Make sure paper (cups, sleeves, sheets, bags) is clean and dry.\n"
+            "2. Flatten and place in the BLUE BIN.\n"
+            "3. Greasy or food-soiled paper cannot be recycled in the blue stream; place heavily soiled paper in residual waste (Red/Black Bin) unless your facility specifically composts soiled paper."
         ),
     },
     "cardboard": {
@@ -82,8 +84,9 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Paper & Cardboard",
         "target": "Blue Bin",
         "instruction": (
-            "1. Shake out leftover food crumbs from takeaway boxes.\n"
-            "2. Tear off heavily greased parts, flatten the box and place it in the BLUE BIN."
+            "1. Shake out all leftover food crumbs from takeaway boxes.\n"
+            "2. Flatten clean cardboard and place it in the BLUE BIN.\n"
+            "3. Tear off heavily greased sections and discard them into residual waste (Red/Black Bin)."
         ),
     },
     "plastic": {
@@ -91,9 +94,9 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Plastic",
         "target": "Yellow Bin",
         "instruction": (
-            "1. Empty all liquid from bottles, cups and containers.\n"
-            "2. Rinse lightly if a sink is nearby, crush to save space, put the cap back on.\n"
-            "3. Drop it into the YELLOW BIN."
+            "1. Empty all liquid or food residues completely.\n"
+            "2. Check for recycling codes (#1 PET bottles, #2 HDPE containers). Lightly rinse and drop in the YELLOW BIN.\n"
+            "3. Note: thin plastic films, unmarked containers, and plastic straws belong in the Red/Black residual bin."
         ),
     },
     "metal": {
@@ -102,8 +105,8 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "target": "Grey Bin",
         "instruction": (
             "1. Drain cans and tins completely.\n"
-            "2. Wipe food off aluminium foil and ball it up.\n"
-            "3. Place it in the GREY METAL BIN."
+            "2. Wipe food residue off aluminium foil and crumple into a ball.\n"
+            "3. Place in the GREY METAL BIN."
         ),
     },
     "biological": {
@@ -111,8 +114,8 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Food Scraps / Organic",
         "target": "Green Bin",
         "instruction": (
-            "1. Put leftover rice, chapati, peels, vegetables and tea bags in the GREEN BIN.\n"
-            "2. IMPORTANT: remove plastic wrappers, foil, toothpicks and cutlery first."
+            "1. Put leftover rice, chapati, fruit peels, vegetables, and tea bags in the GREEN BIN.\n"
+            "2. CRITICAL: Remove all plastic wrappers, foil, toothpicks, sachets, and cutlery first to avoid batch contamination."
         ),
     },
     "trash": {
@@ -120,8 +123,8 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Non-Recyclable / Special Waste",
         "target": "Red/Black Bin",
         "instruction": (
-            "1. Multi-layer chip packets, styrofoam, used tissues and straws go in the RED/BLACK BIN.\n"
-            "2. Keep these out of the Blue, Yellow and Green bins - they contaminate recycling."
+            "1. Multi-layer snack wrappers, styrofoam containers, soiled tissues, and composite waste go in the RED/BLACK BIN.\n"
+            "2. Keep these out of the Blue, Yellow, and Green bins to protect recyclables from contamination."
         ),
     },
     "battery": {
@@ -129,8 +132,8 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Non-Recyclable / Special Waste",
         "target": "E-Waste / Battery Drop Box",
         "instruction": (
-            "1. FIRE HAZARD - never put batteries in any cafeteria bin.\n"
-            "2. Hand it over at the campus E-Waste / Battery drop box or to cafeteria staff."
+            "1. FIRE & CHEMICAL HAZARD: NEVER discard batteries into any general cafeteria bin.\n"
+            "2. Hand directly to cafeteria staff or deposit in the designated campus E-Waste / Battery Drop Box."
         ),
     },
     "brown-glass": {
@@ -138,8 +141,8 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Non-Recyclable / Special Waste",
         "target": "Glass Collection Crate",
         "instruction": (
-            "1. Handle carefully. Place intact bottles in the glass collection crate.\n"
-            "2. If it is broken, do not touch the shards - inform cafeteria staff."
+            "1. Rinse bottles and place intact glass in the dedicated Glass Collection Crate (kept separate from commingled recyclables to prevent shatter hazard).\n"
+            "2. If glass is broken, do not touch shards barehanded; immediately notify cafeteria staff."
         ),
     },
     "green-glass": {
@@ -147,8 +150,8 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Non-Recyclable / Special Waste",
         "target": "Glass Collection Crate",
         "instruction": (
-            "1. Empty the bottle and place it in the glass collection crate.\n"
-            "2. Never mix glass (especially broken glass) with paper or plastic."
+            "1. Empty liquids and place intact bottles in the dedicated Glass Collection Crate.\n"
+            "2. Never mix glass bottles with paper or plastic bins."
         ),
     },
     "white-glass": {
@@ -156,39 +159,84 @@ CLASS_INFO: Dict[str, Dict[str, str]] = {
         "category": "Non-Recyclable / Special Waste",
         "target": "Glass Collection Crate",
         "instruction": (
-            "1. Rinse clear jars/bottles and place them in the glass collection crate.\n"
-            "2. If shattered, ask staff for the puncture-safe container."
+            "1. Rinse clear glass jars/bottles and place them in the dedicated Glass Collection Crate.\n"
+            "2. For shattered glassware, ask staff for puncture-resistant disposal."
         ),
     },
     "clothes": {
         "display": "Clothes / Textile",
         "category": "Non-Recyclable / Special Waste",
-        "target": "Red/Black Bin or Textile Drive",
+        "target": "Textile Donation Box or Red/Black Bin",
         "instruction": (
-            "1. Fabric does not belong in food or recycling bins.\n"
-            "2. Soiled rags -> RED/BLACK BIN. Clean wearable items -> hostel donation box."
+            "1. Textiles do not belong in standard cafeteria recycling or food bins.\n"
+            "2. Clean, wearable items should go to a campus donation point; heavily soiled rags go to the RED/BLACK BIN."
         ),
     },
     "shoes": {
         "display": "Shoes",
         "category": "Non-Recyclable / Special Waste",
-        "target": "Red/Black Bin or Donation Point",
+        "target": "Bulky Residual Bin or Donation Point",
         "instruction": (
-            "1. Footwear is composite waste (rubber/leather/fabric) and cannot be processed in cafeteria streams.\n"
-            "2. Use the bulky non-recyclable bin, or donate if wearable."
+            "1. Footwear contains composite materials (rubber, adhesives, leather, synthetic fabric) unsuitable for cafeteria recycling streams.\n"
+            "2. Donate wearable shoes or place damaged footwear into bulky residual waste."
         ),
     },
 }
 
+def load_policy(path: Optional[Path] = None) -> Dict[str, Any]:
+    """Loads editable policy configuration from JSON with fallback."""
+    p = path or POLICY_PATH
+    if p.exists():
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+            return data
+        except Exception:
+            pass
+    return {
+        "demonstration_notice": "Bin colours, collection streams, and disposal guidance are demonstration assumptions based on standard cafeteria guidelines. Campus and municipal policies vary; consult your local institution's waste management rules.",
+        "categories": DEFAULT_CATEGORIES,
+        "classes": DEFAULT_CLASS_INFO,
+    }
+
+POLICY = load_policy()
+CATEGORIES: Dict[str, Dict[str, Any]] = POLICY.get("categories", DEFAULT_CATEGORIES)
+CATEGORY_NAMES: List[str] = list(CATEGORIES.keys())
+CLASS_INFO: Dict[str, Dict[str, str]] = POLICY.get("classes", DEFAULT_CLASS_INFO)
+DEMONSTRATION_NOTICE: str = POLICY.get(
+    "demonstration_notice",
+    "Bin colours and collection rules are demonstration assumptions; check local campus guidelines.",
+)
+
 UNCERTAIN_ADVICE = (
-    "1. **Check the packaging label** for a recycling symbol (PET 1, HDPE 2, PAP 20-22, ALU 41).\n"
-    "2. **Retake the photo**: one item, centred, hand out of the way, no harsh glare.\n"
-    "3. **Ask cafeteria staff** for help. If no one is available, use the Red/Black bin so that "
-    "recyclable streams are not contaminated."
+    "1. **Check the packaging label** for a recycling symbol (e.g. PET 1, HDPE 2, PAP 20-22, ALU 41).\n"
+    "2. **Retake the photo**: one item, centered, unobstructed, with even lighting.\n"
+    "3. **Consult cafeteria staff or signage**. Do not guess or automatically discard unverified items into recycling streams."
 )
 
 DEFAULT_CONF_THRESHOLD = 0.65
 DEFAULT_ENTROPY_THRESHOLD = 0.45
+
+
+# ---------------------------------------------------------------------------
+# Device Resolution (Apple MPS, CUDA, CPU fallback)
+# ---------------------------------------------------------------------------
+def get_device(requested: Optional[str] = None) -> str:
+    """
+    Returns verified execution device: 'mps', 'cuda', or 'cpu'.
+    Can be configured via BINZY_DEVICE environment variable or argument.
+    """
+    req = (requested or os.environ.get("BINZY_DEVICE", "")).strip().lower()
+    if req == "cuda" and torch.cuda.is_available():
+        return "cuda"
+    if req == "mps" and torch.backends.mps.is_available():
+        return "mps"
+    if req == "cpu":
+        return "cpu"
+    if torch.cuda.is_available():
+        return "cuda"
+    if torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
 
 
 # ---------------------------------------------------------------------------
@@ -213,14 +261,21 @@ def eval_transform(image_size: int = 224):
 
 
 def load_trained_model(path: Path = MODEL_PATH, device: Optional[str] = None):
-    """Returns (model, class_names, meta, device)."""
-    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    """Returns (model, class_names, meta, device) with MPS/CPU/CUDA support."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Model checkpoint not found at '{path}'. "
+            "Please copy the trained 'model.pt' to the 'artifacts/' directory. "
+            "Run 'python preflight.py' to inspect prerequisites."
+        )
+    target_device = get_device(device)
     ckpt = torch.load(path, map_location="cpu", weights_only=True)
     class_names = ckpt["class_names"]
     model = build_model(len(class_names), pretrained=False)
     model.load_state_dict(ckpt["state_dict"])
-    model.eval().to(device)
-    return model, class_names, ckpt.get("meta", {}), device
+    model.eval().to(target_device)
+    return model, class_names, ckpt.get("meta", {}), target_device
 
 
 # ---------------------------------------------------------------------------
@@ -257,7 +312,10 @@ def gate(max_prob: float, h_norm: float, conf_threshold: float, entropy_threshol
 def predict_probs(model, images: List[Image.Image], device: str, image_size: int = 224) -> np.ndarray:
     tf = eval_transform(image_size)
     batch = torch.stack([tf(img.convert("RGB")) for img in images]).to(device)
-    with torch.autocast(device_type="cuda", enabled=(device == "cuda")):
+    if device == "cuda":
+        with torch.autocast(device_type="cuda"):
+            logits = model(batch)
+    else:
         logits = model(batch)
     return F.softmax(logits.float(), dim=-1).cpu().numpy()
 

@@ -1,0 +1,132 @@
+{
+  "demonstration_notice": "Bin colours, collection streams, and disposal guidance are demonstration assumptions based on standard cafeteria guidelines. Campus and municipal policies vary; consult your local institution's waste management rules.",
+  "categories": {
+    "Paper & Cardboard": {
+      "bin": "Blue Bin - Dry Paper Recyclables",
+      "color": "#2f7f9e",
+      "icon": "📄",
+      "stream_type": "recyclable",
+      "description": "Clean, dry paper, cardboard, and paper-based packaging free of heavy grease or food residue."
+    },
+    "Plastic": {
+      "bin": "Yellow Bin - Recyclable Plastics",
+      "color": "#d99a06",
+      "icon": "🧴",
+      "stream_type": "recyclable",
+      "description": "Clean, rigid recyclable plastic containers (primarily PET #1 and HDPE #2). Emptied and rinsed."
+    },
+    "Metal": {
+      "bin": "Grey Bin - Metals & Cans",
+      "color": "#6e6e66",
+      "icon": "🥫",
+      "stream_type": "recyclable",
+      "description": "Beverage cans, food tins, clean aluminum foil, and metal lids. Emptied and wiped clean."
+    },
+    "Food Scraps / Organic": {
+      "bin": "Green Bin - Wet / Compostable Food Waste",
+      "color": "#4e7a1a",
+      "icon": "🍎",
+      "stream_type": "organic_compost",
+      "description": "Post-consumer food waste, fruit and vegetable scraps, tea bags, and organic solids. Strictly no non-biodegradable items."
+    },
+    "Non-Recyclable / Special Waste": {
+      "bin": "Red/Black Bin or Special-Handling Point",
+      "color": "#b4472b",
+      "icon": "🗑️",
+      "stream_type": "residual_and_special",
+      "description": "Composite category combining general non-recyclable residual waste (Red/Black bin) and separate special-handling collection points (battery deposit box, glass crates, donation points). This is NOT a single physical bin."
+    }
+  },
+  "classes": {
+    "paper": {
+      "display": "Paper",
+      "category": "Paper & Cardboard",
+      "target": "Blue Bin",
+      "instruction": "1. Make sure paper (cups, sleeves, sheets, bags) is clean, dry, and free of food residue.\n2. Flatten it and place it in the BLUE BIN.\n3. Greasy or food-soiled paper cannot be recycled in the blue stream; place heavily soiled paper in residual waste (Red/Black Bin) unless your facility specifically composts soiled paper."
+    },
+    "cardboard": {
+      "display": "Cardboard",
+      "category": "Paper & Cardboard",
+      "target": "Blue Bin",
+      "instruction": "1. Shake out all leftover food crumbs from takeaway boxes.\n2. Flatten clean cardboard and place it in the BLUE BIN.\n3. Tear off heavily greased sections and discard them into residual waste (Red/Black Bin)."
+    },
+    "plastic": {
+      "display": "Plastic",
+      "category": "Plastic",
+      "target": "Yellow Bin",
+      "instruction": "1. Empty all liquid or food residues completely.\n2. Check for recycling codes (#1 PET bottles, #2 HDPE containers). Lightly rinse and drop in the YELLOW BIN.\n3. Note: thin plastic films, unmarked containers, and plastic straws belong in the Red/Black residual bin."
+    },
+    "metal": {
+      "display": "Metal",
+      "category": "Metal",
+      "target": "Grey Bin",
+      "instruction": "1. Drain cans and tins completely.\n2. Wipe food residue off aluminium foil and crumple into a ball.\n3. Place in the GREY METAL BIN."
+    },
+    "biological": {
+      "display": "Food / Biological",
+      "category": "Food Scraps / Organic",
+      "target": "Green Bin",
+      "instruction": "1. Put leftover rice, chapati, fruit peels, vegetables, and tea bags in the GREEN BIN.\n2. CRITICAL: Remove all plastic wrappers, foil, toothpicks, sachets, and cutlery first to avoid batch contamination."
+    },
+    "trash": {
+      "display": "General Trash",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "Red/Black Bin",
+      "instruction": "1. Multi-layer snack wrappers, styrofoam containers, soiled tissues, and composite waste go in the RED/BLACK BIN.\n2. Keep these out of the Blue, Yellow, and Green bins to protect recyclables from contamination."
+    },
+    "battery": {
+      "display": "Battery",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "E-Waste / Battery Drop Box",
+      "instruction": "1. FIRE & CHEMICAL HAZARD: NEVER discard batteries into any general cafeteria bin.\n2. Hand directly to cafeteria staff or deposit in the designated campus E-Waste / Battery Drop Box."
+    },
+    "brown-glass": {
+      "display": "Brown Glass",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "Glass Collection Crate",
+      "instruction": "1. Rinse bottles and place intact glass in the dedicated Glass Collection Crate (kept separate from commingled recyclables to prevent shatter hazard).\n2. If glass is broken, do not touch shards barehanded; immediately notify cafeteria staff."
+    },
+    "green-glass": {
+      "display": "Green Glass",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "Glass Collection Crate",
+      "instruction": "1. Empty liquids and place intact bottles in the dedicated Glass Collection Crate.\n2. Never mix glass bottles with paper or plastic bins."
+    },
+    "white-glass": {
+      "display": "Clear Glass",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "Glass Collection Crate",
+      "instruction": "1. Rinse clear glass jars/bottles and place them in the dedicated Glass Collection Crate.\n2. For shattered glassware, ask staff for puncture-resistant disposal."
+    },
+    "clothes": {
+      "display": "Clothes / Textile",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "Textile Donation Box or Red/Black Bin",
+      "instruction": "1. Textiles do not belong in standard cafeteria recycling or food bins.\n2. Clean, wearable items should go to a campus donation point; heavily soiled rags go to the RED/BLACK BIN."
+    },
+    "shoes": {
+      "display": "Shoes",
+      "category": "Non-Recyclable / Special Waste",
+      "target": "Bulky Residual Bin or Donation Point",
+      "instruction": "1. Footwear contains composite materials (rubber, adhesives, leather, synthetic fabric) unsuitable for cafeteria recycling streams.\n2. Donate wearable shoes or place damaged footwear into bulky residual waste."
+    }
+  },
+  "uncertain_guidance": {
+    "action": "withhold_disposal",
+    "notice": "Confidence is below the threshold or entropy is high. No actionable bin is recommended automatically to prevent stream contamination.",
+    "steps": [
+      "Check the packaging label for a recycling symbol (e.g., PET 1, HDPE 2, PAP 20-22, ALU 41).",
+      "Retake the photo with the item centered, well-lit, and unobstructed.",
+      "Ask cafeteria staff or consult local campus guidelines before discarding unverified items."
+    ]
+  },
+  "out_of_scope_guidance": {
+    "action": "withhold_disposal",
+    "notice": "The uploaded image does not appear to be cafeteria waste.",
+    "steps": [
+      "Point the camera at a single cafeteria waste item.",
+      "Ensure personal objects, hands, faces, or pets are not occupying the frame.",
+      "If unsure whether an item is campus waste, consult cafeteria staff."
+    ]
+  }
+}

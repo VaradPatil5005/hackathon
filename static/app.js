@@ -259,7 +259,7 @@ function resultCard(r) {
       <ol class="steps" style="margin-top:.5rem">
         <li><b>Check the packaging label</b> for a recycling symbol (PET 1, HDPE 2, PAP 20–22, ALU 41).</li>
         <li><b>Retake the photo</b> - one item, centred, hand out of the way, no harsh glare.</li>
-        <li><b>Ask cafeteria staff.</b> If no one is around, use the Red/Black bin so recycling isn't contaminated.</li></ol></div>
+        <li><b>Ask cafeteria staff.</b> If unverified, keep separate or consult staff to avoid cross-stream contamination or safety hazards.</li></ol></div>
       ${manualPicker()}${details}</div>`;
   }
   return `<div class="card result reveal">
@@ -447,22 +447,37 @@ function binSheet(name) {
 
 // ------------------------------------------------------------------ INSIGHTS view
 function viewInsights() {
-  const m = S.meta, cr = m.convnext_report, hr = m.hybrid_report, sp = m.split;
-  if (!cr || !sp) return `<section class="sec px"><div class="card result">Run train.py and evaluate.py first.</div></section>`;
-  const kt = hr ? hr.sets.kaggle_test.hybrid : null;
-  const ext = hr ? (hr.sets.external2 || hr.sets.trashnet) : null;
-  const extName = hr && hr.sets.external2 ? "unseen external dataset" : "TrashNet (external)";
+  const m = S.meta || {}, cr = m.convnext_report, hr = m.hybrid_report, sp = m.split;
+  if (!cr || !sp) {
+    const missing = [];
+    if (!cr) missing.push("artifacts/evaluation_report.json");
+    if (!sp) missing.push("artifacts/split_summary.json");
+    if (!hr) missing.push("artifacts/hybrid_report.json");
+    return `<section class="sec px"><div class="card result" style="padding:1.5rem">
+      <h2 style="font-size:1.3rem">${I.alert(24)} Evaluation reports not loaded</h2>
+      <p class="muted" style="margin-top:.6rem">Evaluation reports have not been transferred or generated yet. The app requires:</p>
+      <ul style="margin:.6rem 0 .8rem 1.2rem;line-height:1.6">
+        ${missing.map((x) => `<li><code>${esc(x)}</code></li>`).join("")}
+      </ul>
+      <p style="font-size:.9rem">Please copy these reports into the <code>artifacts/</code> directory or run <code>python preflight.py</code> to inspect requirements.</p>
+    </div></section>`;
+  }
+  const kt = hr && hr.sets && hr.sets.kaggle_test ? hr.sets.kaggle_test.hybrid : null;
+  const ext = hr && hr.sets ? (hr.sets.external2 || hr.sets.trashnet) : null;
+  const extName = hr && hr.sets && hr.sets.external2 ? "unseen external dataset" : "TrashNet (external)";
   const DS = { kaggle_test: "Kaggle test split", trashnet: "TrashNet (external)", external2: "External set #2 (held out)" };
+  const oodRefused = hr && hr.ood && hr.ood.imagenette ? pct(hr.ood.imagenette.not_answered, 0)
+    : (cr && cr.ood && cr.ood.imagenette ? pct(cr.ood.imagenette.flag_rate, 0) : "–");
   return `
   <section class="sec px reveal">
     <p class="label">Evaluation</p><h1 style="font-size:1.75rem;margin-top:.2rem">How well does it work?</h1>
     <p class="muted" style="margin-top:.4rem;max-width:46rem">Every number on this page is computed by our scripts on images the models never trained on. Bin accuracy = the item went to the right one of the 5 bins.</p>
   </section>
   <section class="sec px stagger"><div class="kpis">
-    <div class="card kpi"><b>${pct(kt ? kt.accuracy : cr.category.accuracy)}</b><span>Bin accuracy · ${cr.test_size.toLocaleString()} test images</span></div>
-    <div class="card kpi"><b>${ext ? pct(ext.hybrid.accuracy) : "–"}</b><span>Bin accuracy · ${extName}</span></div>
-    <div class="card kpi"><b>${hr ? pct(hr.ood.imagenette.not_answered, 0) : pct(cr.ood.imagenette.flag_rate, 0)}</b><span>Non-waste photos refused</span></div>
-    <div class="card kpi"><b>${sp.total_images.toLocaleString()}</b><span>Images · 12 classes · 70/15/15</span></div>
+    <div class="card kpi"><b>${pct(kt ? kt.accuracy : (cr.category ? cr.category.accuracy : 0))}</b><span>Bin accuracy · ${cr.test_size ? cr.test_size.toLocaleString() : "–"} test images</span></div>
+    <div class="card kpi"><b>${ext && ext.hybrid ? pct(ext.hybrid.accuracy) : "–"}</b><span>Bin accuracy · ${extName}</span></div>
+    <div class="card kpi"><b>${oodRefused}</b><span>Non-waste photos refused</span></div>
+    <div class="card kpi"><b>${sp.total_images ? sp.total_images.toLocaleString() : "–"}</b><span>Images · 12 classes · 70/15/15</span></div>
   </div></section>
 
   ${hr ? `<section class="sec px">
@@ -542,7 +557,7 @@ function viewStress() {
     <div id="stress-result">${S.result && S.current ? resultCard(S.result) : resultPlaceholder()}</div>
   </div></section>
 
-  ${hr ? `<section class="sec px">
+  ${hr && hr.robustness ? `<section class="sec px">
     <div class="sec-head"><h2 class="section-title">Measured: hybrid vs ConvNeXt</h2><span class="see-all">${hr.robustness.gamma ? "240 test images" : ""}</span></div>
     <div class="grid2">${Object.entries(hr.robustness).map(([k, rows]) => `<div class="card" style="padding:1rem"><p style="font-weight:700">${T[k]}</p>
       <div class="chart">${lineChart(rows.map((r) => r.value), [
@@ -551,7 +566,7 @@ function viewStress() {
         { name: "Hybrid answered", color: "#e2791b", dash: true, values: rows.map((r) => r.hybrid_answered) }], { min: 0, max: 1 })}</div></div>`).join("")}</div>
   </section>` : ""}
 
-  ${cr ? `<section class="sec px">
+  ${cr && cr.robustness ? `<section class="sec px">
     <div class="sec-head"><h2 class="section-title">Full sweep (ConvNeXt, 480 test images)</h2></div>
     <div class="grid2">${Object.entries(cr.robustness).map(([k, rows]) => `<div class="card" style="padding:1rem"><p style="font-weight:700">${T[k]}</p>
       <div class="chart">${lineChart(rows.map((r) => r.value), [
