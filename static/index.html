@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2ec">
+  <title>Binzy · Smart Waste Segregation Assistant</title>
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="/static/fonts/jakarta-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/app.css?v=3">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap inner">
+      <a href="#/scan" class="brand" aria-label="Binzy home" id="brand-top"></a>
+      <nav class="nav" aria-label="Main" id="nav-top"></nav>
+      <div style="display:flex;gap:.4rem;align-items:center">
+        <button class="round-btn" id="btn-settings" aria-label="Settings"></button>
+      </div>
+    </div>
+  </header>
+  <main class="wrap" id="view" tabindex="-1"></main>
+  <nav class="tabbar" aria-label="Main" id="tabbar"></nav>
+  <input type="file" id="file-input" accept="image/*" hidden>
+  <input type="file" id="file-capture" accept="image/*" capture="environment" hidden>
+  <div id="sheet-root"></div>
+  <script src="/static/app.js?v=3"></script>
+</body>
+</html>

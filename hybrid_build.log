@@ -1,0 +1,28 @@
+  probe C=0.5: val acc 0.9888
+  probe C=1: val acc 0.9910
+  probe C=2: val acc 0.9914
+  probe C=5: val acc 0.9927
+  probe C=10: val acc 0.9923
+Linear probe: C=5, val acc 0.9927
+Best fusion: T=2.0 w(zs,lp,cn)=(np.float64(0.5), np.float64(0.1), np.float64(0.4)) tuning acc {'kaggle_val': 0.9957044673539519, 'trashnet': 0.9556786703601108}
+Config: {'w_zs': 0.5, 'w_lp': 0.1, 'w_cn': 0.4, 'temperature': 2.0, 'ood_threshold': 0.30000001192092896, 'conf_threshold': 0.5153705632250047, 'entropy_threshold': 0.6573822376426862, 'tuning_sets': ['kaggle_val', 'trashnet']}
+kaggle_test: hybrid 0.9953 | convnext 0.9880 | zero-shot 0.9837 | probe 0.9966 | answered 0.972
+trashnet: hybrid 0.9557 | convnext 0.9335 | zero-shot 0.9185 | probe 0.9367 | answered 0.930
+external2: hybrid 0.8992 | convnext 0.8665 | zero-shot 0.8665 | probe 0.8741 | answered 0.912
+OOD: {'imagenette': {'n': 1000, 'out_of_scope': 0.718, 'not_answered': 0.93}, 'synthetic': {'n': 80, 'out_of_scope': 1.0, 'not_answered': 1.0}}
+  gamma=0.3: hybrid 0.992 convnext 0.975
+  gamma=0.5: hybrid 0.996 convnext 0.988
+  gamma=1.0: hybrid 0.992 convnext 0.979
+  gamma=1.8: hybrid 0.988 convnext 0.963
+  gamma=2.5: hybrid 0.988 convnext 0.963
+  occlusion_pct=0: hybrid 0.992 convnext 0.979
+  occlusion_pct=20: hybrid 0.958 convnext 0.929
+  occlusion_pct=40: hybrid 0.917 convnext 0.842
+  occlusion_pct=60: hybrid 0.792 convnext 0.733
+  glare=0.0: hybrid 0.992 convnext 0.979
+  glare=0.5: hybrid 0.983 convnext 0.958
+  glare=1.0: hybrid 0.950 convnext 0.912
+  blur=0: hybrid 0.992 convnext 0.979
+  blur=4: hybrid 0.979 convnext 0.958
+  blur=8: hybrid 0.967 convnext 0.925
+Saved artifacts/hybrid_report.json

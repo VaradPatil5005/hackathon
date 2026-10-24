@@ -1,0 +1,57 @@
+split        train  val  test  total
+class                               
+battery        661  142   142    945
+biological     690  148   147    985
+brown-glass    425   91    91    607
+cardboard      624  134   133    891
+clothes       3728  798   799   5325
+green-glass    440   94    95    629
+metal          538  115   116    769
+paper          735  158   157   1050
+plastic        605  130   130    865
+shoes         1384  296   297   1977
+trash          488  105   104    697
+white-glass    546  117   117    780
+Split totals: {'train': 10864, 'val': 2328, 'test': 2328}
+Device: cuda (NVIDIA GeForce RTX 3050 6GB Laptop GPU)
+  epoch 1 step 50/339 loss 2.2861
+  epoch 1 step 100/339 loss 1.7365
+  epoch 1 step 150/339 loss 1.2957
+  epoch 1 step 200/339 loss 1.0668
+  epoch 1 step 250/339 loss 0.9142
+  epoch 1 step 300/339 loss 0.8152
+Epoch 1/5 | loss 0.7547 | val acc 0.9596 | val macro-F1 0.9436 | 101.9s
+  saved best checkpoint -> model.pt
+  epoch 2 step 50/339 loss 0.2204
+  epoch 2 step 100/339 loss 0.2050
+  epoch 2 step 150/339 loss 0.1895
+  epoch 2 step 200/339 loss 0.1845
+  epoch 2 step 250/339 loss 0.1784
+  epoch 2 step 300/339 loss 0.1717
+Epoch 2/5 | loss 0.1704 | val acc 0.9635 | val macro-F1 0.9509 | 73.2s
+  saved best checkpoint -> model.pt
+  epoch 3 step 50/339 loss 0.1175
+  epoch 3 step 100/339 loss 0.1017
+  epoch 3 step 150/339 loss 0.0963
+  epoch 3 step 200/339 loss 0.0956
+  epoch 3 step 250/339 loss 0.0892
+  epoch 3 step 300/339 loss 0.0859
+Epoch 3/5 | loss 0.0851 | val acc 0.9764 | val macro-F1 0.9693 | 73.1s
+  saved best checkpoint -> model.pt
+  epoch 4 step 50/339 loss 0.0435
+  epoch 4 step 100/339 loss 0.0403
+  epoch 4 step 150/339 loss 0.0381
+  epoch 4 step 200/339 loss 0.0354
+  epoch 4 step 250/339 loss 0.0344
+  epoch 4 step 300/339 loss 0.0341
+Epoch 4/5 | loss 0.0338 | val acc 0.9807 | val macro-F1 0.9772 | 73.0s
+  saved best checkpoint -> model.pt
+  epoch 5 step 50/339 loss 0.0326
+  epoch 5 step 100/339 loss 0.0310
+  epoch 5 step 150/339 loss 0.0327
+  epoch 5 step 200/339 loss 0.0304
+  epoch 5 step 250/339 loss 0.0292
+  epoch 5 step 300/339 loss 0.0288
+Epoch 5/5 | loss 0.0284 | val acc 0.9815 | val macro-F1 0.9778 | 73.0s
+  saved best checkpoint -> model.pt
+Done. Best val macro-F1 = 0.9778
