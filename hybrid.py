@@ -65,11 +65,15 @@ class SigLIPEncoder:
 
     def __init__(self, device: Optional[str] = None):
         from transformers import AutoModel, AutoProcessor
+        from waste_core import get_device
 
-        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = get_device(device)
         dtype = torch.float16 if self.device == "cuda" else torch.float32
         self.processor = AutoProcessor.from_pretrained(VLM_ID)
-        self.model = AutoModel.from_pretrained(VLM_ID, torch_dtype=dtype).eval().to(self.device)
+        try:
+            self.model = AutoModel.from_pretrained(VLM_ID, dtype=dtype).eval().to(self.device)
+        except TypeError:
+            self.model = AutoModel.from_pretrained(VLM_ID, torch_dtype=dtype).eval().to(self.device)
         self.dtype = dtype
         self.logit_scale = float(self.model.logit_scale.exp().item())
 
@@ -149,8 +153,8 @@ def decide(fused12: np.ndarray, non_waste: np.ndarray, class_names: List[str], c
 
 
 class HybridClassifier:
-    def __init__(self):
-        self.cn_model, self.class_names, self.cn_meta, self.device = load_trained_model()
+    def __init__(self, device: Optional[str] = None):
+        self.cn_model, self.class_names, self.cn_meta, self.device = load_trained_model(device=device)
         self.cfg = dict(DEFAULT_CONFIG)
         if CONFIG_PATH.exists():
             self.cfg.update(json.loads(CONFIG_PATH.read_text(encoding="utf-8")))

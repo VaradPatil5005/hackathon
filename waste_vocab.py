@@ -11,17 +11,17 @@ TIPS = {
     "wrapper": "Multi-layer wrappers (chocolate, chips, biscuits, noodles) are plastic + aluminium laminates and "
                "cannot be recycled. Shake out crumbs and put the wrapper in the RED/BLACK BIN.",
     "styrofoam": "Styrofoam / thermocol is not accepted by recyclers. Scrape off food and use the RED/BLACK BIN.",
-    "soiled_paper": "Tissues and napkins with food or grease cannot be recycled - RED/BLACK BIN "
-                    "(or GREEN bin if your campus composts paper napkins).",
+    "soiled_paper": "Tissues and napkins with heavy food or grease cannot be recycled in dry paper streams - RED/BLACK BIN "
+                    "(unless your campus composting stream specifically accepts paper napkins).",
     "paper_cup": "Paper cups have a thin plastic lining. Empty them completely and put them in the BLUE BIN "
                  "(dry waste) - never with food waste.",
     "pizza_box": "Tear off greasy parts of the pizza box (RED/BLACK BIN) and flatten the clean cardboard into the BLUE BIN.",
     "tetra": "Tetra Pak cartons (juice, milk) are paper + plastic + foil. Empty, flatten and keep with dry waste "
-             "in the RED/BLACK BIN unless your campus has a Tetra Pak collection point.",
+             "in the RED/BLACK BIN unless your campus has a dedicated Tetra Pak collection point.",
     "straw": "Plastic straws and stirrers are too small to recycle - RED/BLACK BIN.",
     "film": "Cling film and thin plastic films jam recycling machines - RED/BLACK BIN.",
-    "cutlery": "Rinse off food and put disposable plastic cutlery in the YELLOW BIN.",
-    "plastic_bag": "Empty the carry bag, fold it and put it in the YELLOW BIN (or reuse it).",
+    "cutlery": "Disposable plastic cutlery is typically non-recyclable polystyrene or polypropylene - RED/BLACK BIN unless explicitly certified compostable.",
+    "plastic_bag": "Plastic carry bags jam sorting machinery - use dedicated bag recycling drop boxes or RED/BLACK BIN.",
     "foil": "Wipe food off the foil, crumple it into a ball and put it in the GREY METAL BIN.",
     "leaf_plate": "Leaf and areca plates are compostable - put them in the GREEN BIN with food scraps.",
     "kulhad": "Clay kulhads are not recyclable and do not compost - RED/BLACK BIN (or reuse as a planter).",
